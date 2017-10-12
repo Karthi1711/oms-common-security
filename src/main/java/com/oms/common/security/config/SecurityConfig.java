@@ -3,8 +3,8 @@ package com.oms.common.security.config;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -44,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public HttpClient getHttpClient() {
         DefaultHttpClient httpClient = new DefaultHttpClient();
-        HttpRequestInterceptor interceptor = new HttpBasicAuthInterceptor();
+        HttpRequestInterceptor interceptor = new OMSHttpRequestInterceptor();
         httpClient.addRequestInterceptor(interceptor);
         return httpClient;
     }
@@ -54,6 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(getHttpClient());
         return factory;
     }
+    @LoadBalanced
     @Bean
     public RestTemplate getRestTemplate() {
         RestTemplate restTemplate = new RestTemplate(getClientHttpRequestFactory());

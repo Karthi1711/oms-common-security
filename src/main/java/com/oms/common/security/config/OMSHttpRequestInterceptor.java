@@ -9,10 +9,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
 
-public class HttpBasicAuthInterceptor implements HttpRequestInterceptor {
+public class OMSHttpRequestInterceptor implements HttpRequestInterceptor {
     private static final String AUTHORIZATION_HEADER = "Authorization";
 
-    public HttpBasicAuthInterceptor() {
+    public OMSHttpRequestInterceptor() {
     }
 
     public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
