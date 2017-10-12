@@ -1,11 +1,19 @@
 package com.oms.common.security.config;
 
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -31,6 +39,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .withUser("OMSAdmin")
                 .password("OMS1234")
                 .roles("ADMIN");
+    }
+
+    @Bean
+    public HttpClient getHttpClient() {
+        DefaultHttpClient httpClient = new DefaultHttpClient();
+        HttpRequestInterceptor interceptor = new HttpBasicAuthInterceptor();
+        httpClient.addRequestInterceptor(interceptor);
+        return httpClient;
+    }
+
+    @Bean
+    public ClientHttpRequestFactory getClientHttpRequestFactory() {
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(getHttpClient());
+        return factory;
+    }
+    @Bean
+    public RestTemplate getRestTemplate() {
+        RestTemplate restTemplate = new RestTemplate(getClientHttpRequestFactory());
+        return restTemplate;
     }
 
 }

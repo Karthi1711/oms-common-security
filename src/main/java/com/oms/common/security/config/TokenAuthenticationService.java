@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,10 +37,16 @@ public class TokenAuthenticationService {
                     .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
                     .getBody()
                     .getSubject();
-
-            return user != null ?
-                    new UsernamePasswordAuthenticationToken(user, null, emptyList()) :
-                    null;
+            if(user != null){
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(user,token,emptyList());
+                /*OMSJwtTokenDetails omsJwtTokenDetails = new OMSJwtTokenDetails();
+                omsJwtTokenDetails.setUsername(user);
+                omsJwtTokenDetails.setToken(token);
+                usernamePasswordAuthenticationToken.setDetails(omsJwtTokenDetails);*/
+                return usernamePasswordAuthenticationToken;
+            }else{
+                return null;
+            }
         }
         return null;
     }
