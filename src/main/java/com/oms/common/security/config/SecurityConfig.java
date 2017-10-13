@@ -1,19 +1,23 @@
 package com.oms.common.security.config;
 
-//import org.apache.http.HttpRequestInterceptor;
-//import org.apache.http.client.HttpClient;
-//import org.apache.http.impl.client.DefaultHttpClient;
-//import org.springframework.cloud.client.loadbalancer.LoadBalanced;
-//import org.springframework.context.annotation.Bean;
+
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
-//import org.springframework.http.client.ClientHttpRequestFactory;
-//import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-//import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -41,14 +45,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .roles("ADMIN");
     }
 
-/*    @Bean
+    @Bean
+    public HttpRequestInterceptor apacheOutgoingTokenHeaderInterceptor() {
+        return (request, context) -> {
+            if (SecurityContextHolder.getContext().getAuthentication() != null) {
+                Object credentials = SecurityContextHolder.getContext().getAuthentication().getCredentials();
+                String token = credentials.toString();
+                request.addHeader("Authorization", "Bearer " + token);
+            }
+        };
+    }
+    @Bean
     public HttpClient getHttpClient() {
-        DefaultHttpClient httpClient = new DefaultHttpClient();
-        HttpRequestInterceptor interceptor = new OMSHttpRequestInterceptor();
-        httpClient.addRequestInterceptor(interceptor);
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .addInterceptorLast(apacheOutgoingTokenHeaderInterceptor()).build();
         return httpClient;
     }
-
     @Bean
     public ClientHttpRequestFactory getClientHttpRequestFactory() {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(getHttpClient());
@@ -59,6 +71,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public RestTemplate getRestTemplate() {
         RestTemplate restTemplate = new RestTemplate(getClientHttpRequestFactory());
         return restTemplate;
-    }*/
+    }
 
 }
