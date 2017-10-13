@@ -53,12 +53,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public HttpRequestInterceptor apacheOutgoingTokenHeaderInterceptor() {
         return (request, context) -> {
             if (SecurityContextHolder.getContext().getAuthentication() != null) {
-                LOGGER.info("message ={}", "Start setting token in header for IPC call");
                 Object credentials = SecurityContextHolder.getContext().getAuthentication().getCredentials();
                 String token = credentials.toString();
-                LOGGER.info("Derived Token From Security Context ={}", "searchAllProducts");
                 request.addHeader("Authorization", "Bearer " + token);
-                LOGGER.info("message ={}", "Setting token in header for IPC call is success");
             }
         };
     }
