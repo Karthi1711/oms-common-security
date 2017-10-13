@@ -5,6 +5,9 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -16,11 +19,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -49,9 +53,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public HttpRequestInterceptor apacheOutgoingTokenHeaderInterceptor() {
         return (request, context) -> {
             if (SecurityContextHolder.getContext().getAuthentication() != null) {
+                LOGGER.info("message ={}", "Start setting token in header for IPC call");
                 Object credentials = SecurityContextHolder.getContext().getAuthentication().getCredentials();
                 String token = credentials.toString();
+                LOGGER.info("Derived Token From Security Context ={}", "searchAllProducts");
                 request.addHeader("Authorization", "Bearer " + token);
+                LOGGER.info("message ={}", "Setting token in header for IPC call is success");
             }
         };
     }
